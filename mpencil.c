@@ -115,6 +115,8 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  //begin timing
+  double tic = wtime();
 
   for(iter = 0;iter<niters;iter++){
     //send left, receive from right
@@ -161,15 +163,15 @@ int main(int argc, char *argv[]) {
       }
     }
   }
+  //end timing
+  double toc = wtime();
 
-  // Call the stencil kernel
-  double tic = wtime();
+  /*
   for (int t = 0; t < niters; ++t) {
     stencil(nx, ny, image, tmp_image);
     stencil(nx, ny, tmp_image, image);
   }
-  double toc = wtime();
-
+  */
 
   // Output
   printf("------------------------------------\n");
@@ -178,6 +180,17 @@ int main(int argc, char *argv[]) {
 
   output_image(OUTPUT_FILE, nx, ny, image);
   free(image);
+  for(i = 0;i < lRows; i++){
+    free(preImage[i]);
+    free(curImage[i]);
+  }
+  free(preImage);
+  free(curImage);
+  free(sendbuf);
+  free(recvbuf);
+  free(printbuf);
+
+  return EXIT_SUCCESS;
 }
 
 //called 200 times
