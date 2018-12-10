@@ -1,18 +1,37 @@
-
+#include "mpi.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 
 // Define output file name
 #define OUTPUT_FILE "stencil.pgm"
+// Iterations defined by niters
+//number of rows and columns needs to not be hardcoded
 
 void stencil(const int nx, const int ny, double *  image, double *  tmp_image);
 void init_image(const int nx, const int ny, double *  image, double *  tmp_image);
 void output_image(const char * file_name, const int nx, const int ny, double *image);
 double wtime(void);
+int calcNcols(int rank, int size);
 
 int main(int argc, char *argv[]) {
 
+  int i,j;    //row and column indices
+  int k;      //rank iterator
+  int start,end; //start and end columns - RANK dependent
+  int iter;   //timestep iterator
+  int rank;   //rank of process
+  int left,right; //left right rank trackers
+  int size;   //num processes
+  MPI_Status status; //status struct
+  int lRows,lCols; //local number of rows and columns
+  int rCols; //remote number of columns
+  int *sendbuf; //Send buffer
+  int *recvbuf; //Receive buffer
+  int *printbuf; //Print buffer
+
+  
   // Check usage
   if (argc != 4) {
     fprintf(stderr, "Usage: %s nx ny niters\n", argv[0]);
