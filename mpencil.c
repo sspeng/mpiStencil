@@ -11,6 +11,7 @@
 //but otherwise has to be in main??
 #define NROWS 1024
 #define NCOLS 1024
+#define NITERS 200
 #define MASTER 0
 
 void stencil(const int nx, const int ny, double *  image, double *  tmp_image);
@@ -118,7 +119,7 @@ int main(int argc, char *argv[]) {
   //begin timing
   double tic = wtime();
 
-  for(iter = 0;iter<niters;iter++){
+  for(iter = 0;iter<NITERS;iter++){
     //send left, receive from right
     for(i = 0; i < lRows; i++){
       sendbuf[i] = curImage[i][1];
