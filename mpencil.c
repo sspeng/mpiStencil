@@ -63,17 +63,12 @@ int main(int argc, char *argv[]) {
   lRows = NROWS;
   lCols = calcNcols(rank,size);
 
-  // Initiliase problem dimensions from command line arguments
-  int nx = atoi(argv[1]);
-  int ny = atoi(argv[2]);
-  int niters = atoi(argv[3]);
-
   // Allocate the image
-  double *image = malloc(sizeof(double)*nx*ny);
-  double *tmp_image = malloc(sizeof(double)*nx*ny);
+  //scale poorly since every process will do this
+  double *image = malloc(sizeof(double)*NCOLS*NROWS);
 
   // Set the input image
-  init_image(nx, ny, image, tmp_image);
+  init_image(NCOLS, NROWS, image);
 
   //allocate space for local grid
   //two columns added for HALO
@@ -317,7 +312,7 @@ void stencil(const int nx, const int ny, double * image, double * tmp_image) {
 */
 }
 // Create the input image
-void init_image(const int nx, const int ny, double *  image, double *  tmp_image) {
+void init_image(const int nx, const int ny, double *  image) {
   // Zero everything
   const int max = nx*ny;
   for (int z = 0; z < max; z++){
