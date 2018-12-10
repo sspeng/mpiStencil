@@ -160,9 +160,26 @@ int main(int argc, char *argv[]) {
       }
       for(j = start; j < end + 1; j++){
         //stencil here
+        curImage[i][j] = preImage[i][j] * 0.6;
+        curImage[i][j] += preImage[i+1][j] * 0.1;
+        curImage[i][j] += preImage[i-1][j] * 0.1;
+        curImage[i][j] += preImage[i][j+1] * 0.1;
+        curImage[i][j] += preImage[i][j-1] * 0.1;
       }
     }
   }
+
+  /*
+  for(int i = 1; i<ny-1; i++){
+    for(int j = 1; j<nx-1; j++){
+      tmp_image[j+i*nx] = image[j+i*nx] *0.6;
+      tmp_image[j+i*nx] += image[j+((i-1)*nx)] *0.1;
+      tmp_image[j+i*nx] += image[(j-1)+i*nx] *0.1;
+      tmp_image[j+i*nx] += image[(j+1)+i*nx] *0.1;
+      tmp_image[j+i*nx] += image[j+((i+1)*nx)] *0.1;
+    }
+  }
+  */
   //end timing
   double toc = wtime();
 
@@ -179,6 +196,9 @@ int main(int argc, char *argv[]) {
   printf("------------------------------------\n");
 
   output_image(OUTPUT_FILE, nx, ny, image);
+
+  MPI_Finalize();
+
   free(image);
   for(i = 0;i < lRows; i++){
     free(preImage[i]);
