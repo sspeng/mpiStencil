@@ -15,7 +15,7 @@
 #define MASTER 0
 
 void stencil(const int nx, const int ny, double *  image, double *  tmp_image);
-void init_image(const int nx, const int ny, double *  image, double *  tmp_image);
+void init_image(const int nx, const int ny, double *  image);
 void output_image(const char * file_name, const int nx, const int ny, double *image);
 double wtime(void);
 int calcNcols(int rank, int size);
@@ -65,10 +65,10 @@ int main(int argc, char *argv[]) {
 
   // Allocate the image
   //scale poorly since every process will do this
-  double *image = malloc(sizeof(double)*NCOLS*NROWS);
+  double *image = malloc(sizeof(double)*NROWS*NCOLS);
 
   // Set the input image
-  init_image(NCOLS, NROWS, image);
+  init_image(NROWS, NCOLS, image);
 
   //allocate space for local grid
   //two columns added for HALO
@@ -164,18 +164,6 @@ int main(int argc, char *argv[]) {
       }
     }
   }
-
-  /*
-  for(int i = 1; i<ny-1; i++){
-    for(int j = 1; j<nx-1; j++){
-      tmp_image[j+i*nx] = image[j+i*nx] *0.6;
-      tmp_image[j+i*nx] += image[j+((i-1)*nx)] *0.1;
-      tmp_image[j+i*nx] += image[(j-1)+i*nx] *0.1;
-      tmp_image[j+i*nx] += image[(j+1)+i*nx] *0.1;
-      tmp_image[j+i*nx] += image[j+((i+1)*nx)] *0.1;
-    }
-  }
-  */
   //end timing
   double toc = wtime();
 
@@ -191,7 +179,38 @@ int main(int argc, char *argv[]) {
   printf(" runtime: %lf s\n", toc-tic);
   printf("------------------------------------\n");
 
-  output_image(OUTPUT_FILE, nx, ny, image);
+  //Do the printing
+  for(i = 1; i < lRows-1; i++){
+    if(rank == 0){
+      start = 2;
+      end = lCols;
+    }
+    elseif(rank == size -1){
+      start = 1;
+      end = lCols - 1;
+    }
+    else{
+      start = 1;
+      end = lCols;
+    }
+    if(rank == 0){
+      for(j = 2; j < lCols + 1; j++){
+        image[i][j] = curImage[i][j]
+      }
+      for(k = 1; k < size; k++){
+        rCols = calcNcols(k, size);
+        MPI_Recv(printbuf, rCols + 2, MPI_DOUBLE, k, tag, MPI_COMM_WORLD, &status);
+        for(j = 1;j < rCols + 1; j++){
+          image[i][(j-1)+leftCol] = printbuf[j];
+        }
+      }
+    }
+    else{
+      MPI_Send(curImage[i], lCols + 2, MPI_DOUBLE, MASTER, tag, MPI_COMM_WORLD, &status);
+    }
+  }
+
+  output_image(OUTPUT_FILE, NROWS, NCOLS, image);
 
   MPI_Finalize();
 
