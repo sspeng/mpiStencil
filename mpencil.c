@@ -7,13 +7,18 @@
 // Define output file name
 #define OUTPUT_FILE "stencil.pgm"
 // Iterations defined by niters
-//number of rows and columns needs to not be hardcoded
+//NROWS AND NCOLS ideally not hardcoded
+//but otherwise has to be in main??
+#define NROWS 1024
+#define NCOLS 1024
+#define MASTER 0
 
 void stencil(const int nx, const int ny, double *  image, double *  tmp_image);
 void init_image(const int nx, const int ny, double *  image, double *  tmp_image);
 void output_image(const char * file_name, const int nx, const int ny, double *image);
 double wtime(void);
 int calcNcols(int rank, int size);
+int leftCol(int rank);
 
 int main(int argc, char *argv[]) {
 
@@ -24,19 +29,38 @@ int main(int argc, char *argv[]) {
   int rank;   //rank of process
   int left,right; //left right rank trackers
   int size;   //num processes
+  int tag = 0; //extra info in send recv
   MPI_Status status; //status struct
   int lRows,lCols; //local number of rows and columns
   int rCols; //remote number of columns
-  int *sendbuf; //Send buffer
-  int *recvbuf; //Receive buffer
-  int *printbuf; //Print buffer
+  double **preImage; //local image grid at step iter -1
+  double **curImage; //local image grid at step iter
+  double *sendbuf; //Send buffer
+  double *recvbuf; //Receive buffer
+  double *printbuf; //Print buffer
 
-  
+
   // Check usage
   if (argc != 4) {
     fprintf(stderr, "Usage: %s nx ny niters\n", argv[0]);
     exit(EXIT_FAILURE);
   }
+
+
+  //Init MPI
+  //get size and rank
+  MPI_Init( &argc, &argv );
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  //Code from example 11 to do left right calculation
+  //Fancy if..else code
+  left = (rank == MASTER) ? (rank + size - 1) : (rank - 1);
+  right = (rank + 1) % size;
+
+  //determine local grid
+  lRows = NROWS;
+  lCols = calcNcols(rank,size);
 
   // Initiliase problem dimensions from command line arguments
   int nx = atoi(argv[1]);
@@ -49,6 +73,94 @@ int main(int argc, char *argv[]) {
 
   // Set the input image
   init_image(nx, ny, image, tmp_image);
+
+  //allocate space for local grid
+  //two columns added for HALO
+  preImage = (double**)malloc(sizeof(double*) * lRows);
+  for(int i=0;i<lRows;i++){
+    preImage[i] = (double*)malloc(sizeof(double) * (lCols+2));
+  }
+  curImage = (double**)malloc(sizeof(double*) * lRows);
+  for(int i=0;i<lRows;i++){
+    curImage[i] = (double*)malloc(sizeof(double) * (lCols+2));
+  }
+  sendbuf = (double*)malloc(sizeof(double) * lRows);
+  recvbuf = (double*)malloc(sizeof(double) * lRows);
+
+  //last rank has most columns in this format
+  rCols = calcNcols(size-1,size);
+  printbuf = (double*)malloc(sizeof(double) * (rCols + 2));
+
+  //initialise local grid
+
+  //gonna be errors due to boundary conditions
+  for(int i=0;i<lRows;i++){
+    for(int j=0;j<lCols + 1;j++){
+      if(i = 0){
+        curImage[i][j] = 0.0;
+      }
+      elseif(i == lRows-1){
+        curImage[i][j] = 0.0;
+      }
+      elseif((rank == 0) && j == 1){
+        curImage[i][j] = 0.0;
+      }
+      elseif((rank == size-1) && j == lCols){
+        curImage[i][j] = 0.0;
+      }
+      else{
+        //equivalent to Boundary Mean case
+        curImage[i][j] = image[i][j+leftCol(rank)]
+      }
+    }
+  }
+
+
+  for(iter = 0;iter<niters;iter++){
+    //send left, receive from right
+    for(i = 0; i < lRows; i++){
+      sendbuf[i] = curImage[i][1];
+    }
+    MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
+    for(i = 0; i < lRows; i++){
+      curImage[i][lCols+1] = recvbuf[i];
+    }
+
+    //send right, receive from left
+    for(i = 0; i < lRows; i++){
+      sendbuf[i] = curImage[i][lCols];
+    }
+    MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, rag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
+    for(i = 0; i < lRows; i++){
+      curImage[i][0] = recvbuf[i];
+    }
+
+    //copy old solution into preImage grid
+    for(i = 0;i < lRows; i++){
+      for(j = 0; j < lCols + 2; j++){
+        preImage[i][j] = curImage[i][j];
+      }
+    }
+
+    //run stencil here
+    for(i = 1; i < lRows-1; i++){
+      if(rank == 0){
+        start = 2;
+        end = lCols;
+      }
+      elseif(rank == size -1){
+        start = 1;
+        end = lCols - 1;
+      }
+      else{
+        start = 1;
+        end = lCols;
+      }
+      for(j = start; j < end + 1; j++){
+        //stencil here
+      }
+    }
+  }
 
   // Call the stencil kernel
   double tic = wtime();
