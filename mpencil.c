@@ -20,17 +20,20 @@
 #define MASTER 0
 
 void init_image(const int nx, const int ny, double *  image);
-void output_image(const char * file_name, const int nx, const int ny, double *image);
+void output_image(const char * file_name, const int nx, const int ny, double **image);
 double wtime(void);
 int calcNcols(int rank, int size);
 int leftCol(int rank, int size);
 
 int main(int argc, char *argv[]) {
 
+  int start;
+  int end;
   int size;   //num processes
   int tag = 0; //extra info in send recv
   MPI_Status status; //status struct
-  int lRows,lCols; //local number of rows and columns
+  int lRows;
+  int lCols; //local number of rows and columns
   int rCols; //remote number of columns
   double **preImage; //local image grid at step iter -1
   double **curImage; //local image grid at step iter
@@ -51,8 +54,8 @@ int main(int argc, char *argv[]) {
   int right = (rank + 1) % size;
 
   //determine local grid
-  int lRows = NROWS;
-  int lCols = calcNcols(rank,size);
+  lRows = NROWS;
+  lCols = calcNcols(rank,size);
 
   // Allocate the image
   //scale poorly since every process will do this
@@ -84,7 +87,7 @@ int main(int argc, char *argv[]) {
   for(int i=0;i<lRows;i++){
     for(int j=0;j<lCols + 1;j++){
       //first row is 0s
-      if(i = 0){
+      if(i == 0){
         curImage[i][j] = 0.0;
       }
       //last row is 0s
@@ -101,7 +104,7 @@ int main(int argc, char *argv[]) {
       }
       else{
         //equivalent to Boundary Mean case
-        curImage[i][j] = image[i+(j+leftCol(rank,size))*NROWS]
+        curImage[i][j] = image[i+(j+leftCol(rank,size))*NROWS];
       }
     }
   }
@@ -138,16 +141,16 @@ int main(int argc, char *argv[]) {
     //run stencil here
     for(int i = 1; i < lRows-1; i++){
       if(rank == 0){
-        int start = 2;
-        int end = lCols;
+        start = 2;
+        end = lCols;
       }
       else if(rank == size -1){
-        int start = 1;
-        int end = lCols - 1;
+        start = 1;
+        end = lCols - 1;
       }
       else{
-        int start = 1;
-        int end = lCols;
+        start = 1;
+        end = lCols;
       }
       for(int j = start; j < end + 1; j++){
         //stencil here
@@ -168,19 +171,19 @@ int main(int argc, char *argv[]) {
   printf("------------------------------------\n");
 
   //Do the printing
-
+  double** printImage;
   if(rank == 0){
-    int start = 2;
-    int end = lCols;
-    double **printImage = ((double**)malloc(sizeof(double*)*NROWS*NCOLS);
+    start = 2;
+    end = lCols;
+    printImage = ((double**)malloc(sizeof(double*)*NROWS*NCOLS));
   }
   else if(rank == size -1){
-    int start = 1;
-    int end = lCols - 1;
+    start = 1;
+    end = lCols - 1;
   }
   else{
-    int start = 1;
-    int end = lCols;
+    start = 1;
+    end = lCols;
   }
   for(int i = 1; i < lRows-1; i++){
     if(rank == 0){
@@ -198,7 +201,7 @@ int main(int argc, char *argv[]) {
       }
     }
     else{
-      MPI_Send(curImage[i], lCols + 2, MPI_DOUBLE, MASTER, tag, MPI_COMM_WORLD, &status);
+      MPI_Send(curImage[i], lCols + 2, MPI_DOUBLE, MASTER, tag, MPI_COMM_WORLD);
     }
   }
 
@@ -242,7 +245,7 @@ void init_image(const int nx, const int ny, double *  image) {
 }
 
 // Routine to output the image in Netpbm grayscale binary image format
-void output_image(const char * file_name, const int nx, const int ny, double *image) {
+void output_image(const char * file_name, const int nx, const int ny, double **image) {
 
   // Open output file
   FILE *fp = fopen(file_name, "w");
@@ -258,17 +261,17 @@ void output_image(const char * file_name, const int nx, const int ny, double *im
   // This is used to rescale the values
   // to a range of 0-255 for output
   double maximum = 0.0;
-  for (int j = 0; j < ny; ++j) {
-    for (int i = 0; i < nx; ++i) {
-      if (image[j+i*ny] > maximum)
-        maximum = image[j+i*ny];
+  for (int i = 0; i < nx; ++i) {
+    for (int j = 0; j < ny; ++j) {
+      if (image[j][i] > maximum)
+        maximum = image[j][i];
     }
   }
 
   // Output image, converting to numbers 0-255
   for (int j = 0; j < ny; ++j) {
     for (int i = 0; i < nx; ++i) {
-      fputc((char)(255.0*image[j+i*ny]/maximum), fp);
+      fputc((char)(255.0*image[j][i]/maximum), fp);
     }
   }
 
