@@ -21,6 +21,7 @@
 
 void init_image(const int nx, const int ny, double *  image);
 void output_image(const char * file_name, const int nx, const int ny, double **image);
+void stencil(int rank, int size, int lRows, int lCols, double **preImage, double **curImage);
 double wtime(void);
 int calcNcols(int rank, int size);
 int leftCol(int rank, int size);
@@ -289,6 +290,8 @@ int leftCol(int rank, int size){
 }
 
 void stencil(int rank, int size, int lRows, int lCols, double **preImage, double **curImage){
+  int start;
+  int end;
   for(int i = 1; i < lRows-1; i++){
     if(rank == 0){
       start = 2;
