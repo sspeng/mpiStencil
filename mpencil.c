@@ -156,13 +156,14 @@ int main(int argc, char *argv[]) {
     printf(" runtime: %lf s\n", toc-tic);
     printf("------------------------------------\n");
   }
-
+  //RANK 0 PROCESS REACHES HERE
   //Do the printing
   double** printImage;
   if(rank == 0){
     start = 2;
     end = lCols;
     printImage = ((double**)malloc(sizeof(double*)*NROWS*NCOLS));
+    printf("Rank %d has just assigned memory for printImage\n",rank);
   }
   else if(rank == size -1){
     start = 1;
@@ -174,10 +175,12 @@ int main(int argc, char *argv[]) {
   }
   for(int i = 1; i < lRows-1; i++){
     if(rank == 0){
+      printf("Rank %d just got into assigning their own printImage segment\n",rank);
       //change from j = 2; j < lCols + 1
       for(int j = 1; j < lCols; j++){
         printImage[i-1][j-1] = curImage[i][j];
       }
+      printf("Rank %d just finished their own printImage segment\n",rank);
       for(int k = 1; k < size; k++){
         rCols = calcNcols(k, size);
         MPI_Recv(printbuf, rCols + 2, MPI_DOUBLE, k, tag, MPI_COMM_WORLD, &status);
