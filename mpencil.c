@@ -183,7 +183,7 @@ int main(int argc, char *argv[]) {
         printf("curImage[%d][%d] = %f\n",i,j,curImage[i][j]);
         printf("curImage[4][42] = %f\n",curImage[4][42]);
         printf("curImage[17][91] = %f\n",curImage[17][91]);
-        printImage[i-1][j-1] = curImage[i][j];
+        printImage[i-1][j-1] = curImage[17][91];
 
 
         printf("Successful Assign of printImage");
