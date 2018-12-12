@@ -1,25 +1,13 @@
-Running on host node43-037
-Time is Wed Dec 12 13:55:46 GMT 2018
+Running on host node31-030
+Time is Wed Dec 12 14:10:17 GMT 2018
 Directory is /panfs/panasas01/cosc/ds16797/stencil
-PBS job ID is 7823152.master.cm.cluster
-Rank 2 has just run init_image
-Rank 3 has just run init_image
-Rank 3 has just allocated memory for arrays
-Rank 2 has just allocated memory for arrays
+PBS job ID is 7823239.master.cm.cluster
 Rank 0 has just run init_image
-Rank 1 has just run init_image
-Rank 2 has just initialised the local grid with image pixels
-Rank 3 has just initialised the local grid with image pixels
 Rank 0 has just allocated memory for arrays
-Rank 1 has just allocated memory for arrays
 Rank 0 has just initialised the local grid with image pixels
-Rank 1 has just initialised the local grid with image pixels
-Rank 2 has just finished stencilling
-Rank 3 has just finished stencilling
 Rank 0 has just finished stencilling
 ------------------------------------
-Rank 1 has just finished stencilling
- runtime: 0.166808 s
+ runtime: 0.541814 s
 ------------------------------------
 Rank 0 has just assigned memory for printImage
 Rank 0 just got into assigning their own printImage segment
@@ -27,7 +15,7 @@ Assigning printImage[0][0] from curImage[1][1]
 
 ===================================================================================
 =   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
-=   PID 87749 RUNNING AT node43-037
+=   PID 75528 RUNNING AT node31-030
 =   EXIT CODE: 11
 =   CLEANING UP REMAINING PROCESSES
 =   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
@@ -35,9 +23,8 @@ Assigning printImage[0][0] from curImage[1][1]
 
 ===================================================================================
 =   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
-=   PID 87749 RUNNING AT node43-037
+=   PID 75528 RUNNING AT node31-030
 =   EXIT CODE: 11
 =   CLEANING UP REMAINING PROCESSES
 =   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
 ===================================================================================
-Warning: Permanently added 'node43-037,10.131.1.97' (RSA) to the list of known hosts.
