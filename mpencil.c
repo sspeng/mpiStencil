@@ -148,11 +148,14 @@ int main(int argc, char *argv[]) {
   }
   //end timing
   double toc = wtime();
+  printf("Rank %d has just finished stencilling\n", rank);
 
-  // Output
-  printf("------------------------------------\n");
-  printf(" runtime: %lf s\n", toc-tic);
-  printf("------------------------------------\n");
+  if(rank == MASTER){
+    // Output
+    printf("------------------------------------\n");
+    printf(" runtime: %lf s\n", toc-tic);
+    printf("------------------------------------\n");
+  }
 
   //Do the printing
   double** printImage;
@@ -178,6 +181,7 @@ int main(int argc, char *argv[]) {
       for(int k = 1; k < size; k++){
         rCols = calcNcols(k, size);
         MPI_Recv(printbuf, rCols + 2, MPI_DOUBLE, k, tag, MPI_COMM_WORLD, &status);
+        printf("Rank %d has just received a printbuffer\n", rank);
 
         for(int j = 1;j < rCols + 1; j++){
           printImage[i-1][(j-1)+leftCol(k,size)] = printbuf[j];
@@ -186,10 +190,13 @@ int main(int argc, char *argv[]) {
     }
     else{
       MPI_Send(curImage[i], lCols + 2, MPI_DOUBLE, MASTER, tag, MPI_COMM_WORLD);
+      printf("Rank %d has just sent a printbuffer\n", rank);
     }
   }
-
-  output_image(OUTPUT_FILE, NROWS, NCOLS, printImage);
+  if(rank==MASTER){
+    output_image(OUTPUT_FILE, NROWS, NCOLS, printImage);
+  }
+  printf("Rank %d has just finished totally\n", rank);
 
   MPI_Finalize();
 
