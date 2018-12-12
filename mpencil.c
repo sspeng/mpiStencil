@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
         printImage[i-1][j-1] = curImage[i][j];
 
 
-        printf("Successful Assign of printImage")
+        printf("Successful Assign of printImage");
       }
       printf("Rank %d just finished their own printImage segment\n",rank);
       for(int k = 1; k < size; k++){
