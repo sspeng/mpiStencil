@@ -1,5 +1,5 @@
-Running on host node31-029
-Time is Wed Dec 12 10:57:22 GMT 2018
+Running on host node31-034
+Time is Wed Dec 12 11:00:41 GMT 2018
 Directory is /panfs/panasas01/cosc/ds16797/stencil
-PBS job ID is 7821522.master.cm.cluster
-/cm/local/apps/torque/4.2.4.1/spool/mom_priv/jobs/7821522.master.cm.cluster.SC: line 17: mpirun: command not found
+PBS job ID is 7821548.master.cm.cluster
+/cm/local/apps/torque/4.2.4.1/spool/mom_priv/jobs/7821548.master.cm.cluster.SC: line 17: mpirun: command not found
