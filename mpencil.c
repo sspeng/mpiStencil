@@ -20,7 +20,7 @@
 #define MASTER 0
 
 void init_image(const int nx, const int ny, double *  image);
-void output_image(const char * file_name, const int nx, const int ny, double **image);
+void output_image(const char * file_name, const int nx, const int ny, double *image);
 void stencil(int rank, int size, int lRows, int lCols, double **preImage, double **curImage);
 double wtime(void);
 int calcNcols(int rank, int size);
@@ -43,10 +43,11 @@ int main(int argc, char *argv[]) {
   double *recvbuf; //Receive buffer
   double *printbuf; //Print buffer
 
+  /*
   double buf[NROWS];
   MPI_File printFile;
   MPI_Request request;
-
+  */
 
   //Init MPI
   //get size and rank
@@ -162,11 +163,11 @@ int main(int argc, char *argv[]) {
   }
   //RANK 0 PROCESS REACHES HERE
   //Do the printing
-  double** printImage;
+  double* printImage;
   if(rank == 0){
     start = 2;
     end = lCols;
-    printImage = ((double**)malloc(sizeof(double*)*NROWS*NCOLS));
+    printImage = ((double*)malloc(sizeof(double)*NROWS*NCOLS));
     printf("Rank %d has just assigned memory for printImage\n",rank);
   }
   else if(rank == size -1){
@@ -183,17 +184,8 @@ int main(int argc, char *argv[]) {
       //change from j = 2; j < lCols + 1
       for(int j = 1; j < lCols; j++){
         printf("Assigning printImage[%d][%d] from curImage[%d][%d]\n",i-1,j-1,i,j);
-
-        printf("curImage[%d][%d] = %f\n",i,j,curImage[i][j]);
-        //zero
-        printf("curImage[4][42] = %f\n",curImage[4][42]);
-        //nonzero
-        printf("curImage[17][91] = %f\n",curImage[17][91]);
-
-        printImage[0][0] = 1.45;
-        printf("printImage[0][0] = %f\n",printImage[0][0]);
         //breaks here
-        printImage[i-1][j-1] = curImage[i][j];
+        printImage[(i-1*NROWS)+(j-1)] = curImage[i][j];
 
 
         printf("Successful Assign of printImage");
@@ -205,7 +197,7 @@ int main(int argc, char *argv[]) {
         printf("Rank %d has just received a printbuffer\n", rank);
 
         for(int j = 1;j < rCols + 1; j++){
-          printImage[i-1][(j-1)+leftCol(k,size)] = printbuf[j];
+          printImage[(i-1)*NROWS + (j-1)+leftCol(k,size)] = printbuf[j];
         }
       }
     }
@@ -256,7 +248,7 @@ void init_image(const int nx, const int ny, double *  image) {
 }
 
 // Routine to output the image in Netpbm grayscale binary image format
-void output_image(const char * file_name, const int nx, const int ny, double **image) {
+void output_image(const char * file_name, const int nx, const int ny, double *image) {
 
   // Open output file
   FILE *fp = fopen(file_name, "w");
@@ -274,15 +266,15 @@ void output_image(const char * file_name, const int nx, const int ny, double **i
   double maximum = 0.0;
   for (int i = 0; i < nx; ++i) {
     for (int j = 0; j < ny; ++j) {
-      if (image[j][i] > maximum)
-        maximum = image[j][i];
+      if (image[j+ i*nx] > maximum)
+        maximum = image[j + i*nx];
     }
   }
 
   // Output image, converting to numbers 0-255
   for (int j = 0; j < ny; ++j) {
     for (int i = 0; i < nx; ++i) {
-      fputc((char)(255.0*image[j][i]/maximum), fp);
+      fputc((char)(255.0*image[j+i*nx]/maximum), fp);
     }
   }
 
