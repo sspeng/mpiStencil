@@ -43,6 +43,10 @@ int main(int argc, char *argv[]) {
   double *recvbuf; //Receive buffer
   double *printbuf; //Print buffer
 
+  double buf[NROWS];
+  MPI_File printFile;
+  MPI_Request request;
+
 
   //Init MPI
   //get size and rank
@@ -181,9 +185,15 @@ int main(int argc, char *argv[]) {
         printf("Assigning printImage[%d][%d] from curImage[%d][%d]\n",i-1,j-1,i,j);
 
         printf("curImage[%d][%d] = %f\n",i,j,curImage[i][j]);
+        //zero
         printf("curImage[4][42] = %f\n",curImage[4][42]);
+        //nonzero
         printf("curImage[17][91] = %f\n",curImage[17][91]);
-        printImage[i-1][j-1] = curImage[17][91];
+
+        printImage[0][0] = 1.45;
+        printf("printImage[0][0] = %f\n",printImage[0][0]);
+        //breaks here
+        printImage[i-1][j-1] = curImage[i][j];
 
 
         printf("Successful Assign of printImage");
