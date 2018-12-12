@@ -1,107 +1,32 @@
-Running on host node31-031
-Time is Wed Dec 12 12:00:07 GMT 2018
+Running on host node31-029
+Time is Wed Dec 12 12:18:37 GMT 2018
 Directory is /panfs/panasas01/cosc/ds16797/stencil
-PBS job ID is 7822350.master.cm.cluster
-Rank 7 has just run init_image
-Rank 15 has just run init_image
-Rank 0 has just run init_image
-Rank 6 has just run init_image
-Rank 1 has just run init_image
-Rank 14 has just run init_image
-Rank 13 has just run init_image
-Rank 5 has just run init_image
-Rank 3 has just run init_image
-Rank 4 has just run init_image
-Rank 8 has just run init_image
-Rank 9 has just run init_image
-Rank 12 has just run init_image
-Rank 10 has just run init_image
+PBS job ID is 7822530.master.cm.cluster
 Rank 2 has just run init_image
-Rank 11 has just run init_image
-Rank 7 has just allocated memory for arrays
-Rank 0 has just allocated memory for arrays
-Rank 6 has just allocated memory for arrays
-Rank 15 has just allocated memory for arrays
-Rank 14 has just allocated memory for arrays
-Rank 1 has just allocated memory for arrays
-Rank 3 has just allocated memory for arrays
-Rank 12 has just allocated memory for arrays
-Rank 13 has just allocated memory for arrays
-Rank 4 has just allocated memory for arrays
-Rank 9 has just allocated memory for arrays
-Rank 10 has just allocated memory for arrays
+Rank 0 has just run init_image
+Rank 3 has just run init_image
+Rank 1 has just run init_image
 Rank 2 has just allocated memory for arrays
-Rank 5 has just allocated memory for arrays
-Rank 11 has just allocated memory for arrays
-Rank 8 has just allocated memory for arrays
-Rank 7 has just initialised the local grid with image pixels
-Rank 0 has just initialised the local grid with image pixels
-Rank 6 has just initialised the local grid with image pixels
-Rank 15 has just initialised the local grid with image pixels
-Rank 1 has just initialised the local grid with image pixels
-Rank 12 has just initialised the local grid with image pixels
-Rank 14 has just initialised the local grid with image pixels
-Rank 9 has just initialised the local grid with image pixels
-Rank 3 has just initialised the local grid with image pixels
-Rank 4 has just initialised the local grid with image pixels
-Rank 10 has just initialised the local grid with image pixels
-Rank 13 has just initialised the local grid with image pixels
+Rank 0 has just allocated memory for arrays
+Rank 3 has just allocated memory for arrays
+Rank 1 has just allocated memory for arrays
 Rank 2 has just initialised the local grid with image pixels
-Rank 5 has just initialised the local grid with image pixels
-Rank 11 has just initialised the local grid with image pixels
-Rank 8 has just initialised the local grid with image pixels
+Rank 0 has just initialised the local grid with image pixels
+Rank 3 has just initialised the local grid with image pixels
+Rank 1 has just initialised the local grid with image pixels
+Rank 0 has just finished stencilling
 ------------------------------------
------------------------------------- runtime: 0.320409 s
+ runtime: 1.135259 s
 ------------------------------------
-------------------------------------
- runtime: 0.320100 s
-------------------------------------
-------------------------------------
- runtime: 0.320138 s
-------------------------------------
-------------------------------------
- runtime: 0.320207 s
-------------------------------------
-------------------------------------
- runtime: 0.320197 s
-------------------------------------
-------------------------------------
- runtime: 0.320037 s
-------------------------------------
-------------------------------------
- runtime: 0.320177 s
-------------------------------------
-------------------------------------
- runtime: 0.319935 s
-------------------------------------
-------------------------------------
- runtime: 0.320250 s
-------------------------------------
-------------------------------------
- runtime: 0.320154 s
-------------------------------------
-------------------------------------
- runtime: 0.320241 s
-------------------------------------
-------------------------------------
- runtime: 0.320350 s
-------------------------------------
-------------------------------------
- runtime: 0.320409 s
-------------------------------------
-------------------------------------
- runtime: 0.320227 s
-------------------------------------
-
-------------------------------------
- runtime: 0.319791 s
-------------------------------------
- runtime: 0.320245 s
-------------------------------------
+Rank 0 has just assigned memory for printImage
+Rank 0 just got into assigning their own printImage segment
+Rank 1 has just finished stencilling
+Rank 2 has just finished stencilling
+Rank 3 has just finished stencilling
 
 ===================================================================================
 =   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
-=   PID 70720 RUNNING AT node31-031
+=   PID 91596 RUNNING AT node31-029
 =   EXIT CODE: 11
 =   CLEANING UP REMAINING PROCESSES
 =   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
@@ -109,7 +34,7 @@ Rank 8 has just initialised the local grid with image pixels
 
 ===================================================================================
 =   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
-=   PID 70720 RUNNING AT node31-031
+=   PID 91596 RUNNING AT node31-029
 =   EXIT CODE: 11
 =   CLEANING UP REMAINING PROCESSES
 =   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
