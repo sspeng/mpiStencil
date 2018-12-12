@@ -178,6 +178,7 @@ int main(int argc, char *argv[]) {
       printf("Rank %d just got into assigning their own printImage segment\n",rank);
       //change from j = 2; j < lCols + 1
       for(int j = 1; j < lCols; j++){
+        printf("Assigning printImage[%d][%d] from curImage[%d][%d]\n",i-1,j-1,i,j);
         printImage[i-1][j-1] = curImage[i][j];
       }
       printf("Rank %d just finished their own printImage segment\n",rank);
