@@ -179,7 +179,12 @@ int main(int argc, char *argv[]) {
       //change from j = 2; j < lCols + 1
       for(int j = 1; j < lCols; j++){
         printf("Assigning printImage[%d][%d] from curImage[%d][%d]\n",i-1,j-1,i,j);
+
+        printf("curImage[%d][%d] = %f",i,j,curImage[i][j]);
         printImage[i-1][j-1] = curImage[i][j];
+
+
+        printf("Successful Assign of printImage")
       }
       printf("Rank %d just finished their own printImage segment\n",rank);
       for(int k = 1; k < size; k++){
