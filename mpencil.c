@@ -180,9 +180,9 @@ int main(int argc, char *argv[]) {
       for(int j = 1; j < lCols; j++){
         printf("Assigning printImage[%d][%d] from curImage[%d][%d]\n",i-1,j-1,i,j);
 
-        printf("curImage[%d][%d] = %f",i,j,curImage[i][j]);
-        printf("curImage[4][42] = %f",curImage[4][42]);
-        printf("curImage[17][91] = %f",curImage[17][91]);
+        printf("curImage[%d][%d] = %f\n",i,j,curImage[i][j]);
+        printf("curImage[4][42] = %f\n",curImage[4][42]);
+        printf("curImage[17][91] = %f\n",curImage[17][91]);
         printImage[i-1][j-1] = curImage[i][j];
 
 
