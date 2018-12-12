@@ -13,12 +13,6 @@ double wtime(void);
 
 int main(int argc, char *argv[]) {
 
-  // Check usage
-  if (argc != 4) {
-    fprintf(stderr, "Usage: %s nx ny niters\n", argv[0]);
-    exit(EXIT_FAILURE);
-  }
-
   // Initiliase problem dimensions from command line arguments
   int nx = atoi(argv[1]);
   int ny = atoi(argv[2]);
@@ -214,4 +208,8 @@ double wtime(void) {
   struct timeval tv;
   gettimeofday(&tv, NULL);
   return tv.tv_sec + tv.tv_usec*1e-6;
+}
+
+void rankCall(int n){
+  fprintf("Hello from ")
 }
