@@ -190,7 +190,6 @@ int main(int argc, char *argv[]) {
     }
     else{
       MPI_Send(curImage[i], lCols + 2, MPI_DOUBLE, MASTER, tag, MPI_COMM_WORLD);
-      printf("Rank %d has just sent a printbuffer\n", rank);
     }
   }
   if(rank==MASTER){
