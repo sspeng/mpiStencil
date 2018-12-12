@@ -13,6 +13,12 @@ double wtime(void);
 
 int main(int argc, char *argv[]) {
 
+  // Check usage
+  if (argc != 4) {
+    fprintf(stderr, "Usage: %s nx ny niters\n", argv[0]);
+    exit(EXIT_FAILURE);
+  }
+
   // Initiliase problem dimensions from command line arguments
   int nx = atoi(argv[1]);
   int ny = atoi(argv[2]);
