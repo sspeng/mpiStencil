@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
 
   // Set the input image
   init_image(NROWS, NCOLS, image);
+  printf("Rank %d has just run init_image\n",rank);
 
   //allocate space for local grid
   //two columns added for HALO
@@ -81,6 +82,7 @@ int main(int argc, char *argv[]) {
   //last rank has most columns in this format
   rCols = calcNcols(size-1,size);
   printbuf = (double*)malloc(sizeof(double) * (rCols + 2));
+  printf("Rank %d has just allocated memory for arrays\n", rank);
 
   //initialise local grid
 
@@ -109,6 +111,7 @@ int main(int argc, char *argv[]) {
       }
     }
   }
+  printf("Rank %d has just initialised the local grid with image pixels\n",rank);
 
   //begin timing
   double tic = wtime();
@@ -140,28 +143,7 @@ int main(int argc, char *argv[]) {
     }
 
     //run stencil here
-    for(int i = 1; i < lRows-1; i++){
-      if(rank == 0){
-        start = 2;
-        end = lCols;
-      }
-      else if(rank == size -1){
-        start = 1;
-        end = lCols - 1;
-      }
-      else{
-        start = 1;
-        end = lCols;
-      }
-      for(int j = start; j < end + 1; j++){
-        //stencil here
-        curImage[i][j] = preImage[i][j] * 0.6;
-        curImage[i][j] += preImage[i+1][j] * 0.1;
-        curImage[i][j] += preImage[i-1][j] * 0.1;
-        curImage[i][j] += preImage[i][j+1] * 0.1;
-        curImage[i][j] += preImage[i][j-1] * 0.1;
-      }
-    }
+    stencil(rank,size,lRows,lCols,preImage,curImage);
   }
   //end timing
   double toc = wtime();
@@ -304,4 +286,29 @@ int leftCol(int rank, int size){
   int l;
   l = rank * (NCOLS/size);
   return l;
+}
+
+void stencil(int rank, int size, int lRows, int lCols, double **preImage, double **curImage){
+  for(int i = 1; i < lRows-1; i++){
+    if(rank == 0){
+      start = 2;
+      end = lCols;
+    }
+    else if(rank == size -1){
+      start = 1;
+      end = lCols - 1;
+    }
+    else{
+      start = 1;
+      end = lCols;
+    }
+    for(int j = start; j < end + 1; j++){
+      //stencil here
+      curImage[i][j] = preImage[i][j] * 0.6;
+      curImage[i][j] += preImage[i+1][j] * 0.1;
+      curImage[i][j] += preImage[i-1][j] * 0.1;
+      curImage[i][j] += preImage[i][j+1] * 0.1;
+      curImage[i][j] += preImage[i][j-1] * 0.1;
+    }
+  }
 }
