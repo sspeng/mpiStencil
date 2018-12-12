@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
   int start;
   int end;
   int size;   //num processes
+  int rank;   //rank of process
   int tag = 0; //extra info in send recv
   MPI_Status status; //status struct
   int lRows;
