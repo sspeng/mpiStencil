@@ -1,3 +1,4 @@
 *.out
 *.pgm
 mpencil
+mpencil.out
