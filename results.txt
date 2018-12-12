@@ -2,7 +2,7 @@ Process numbers		Runtime
 1
 2
 3
-4			1.13 Error		
+4			0.16 Error		
 5
 6
 7
