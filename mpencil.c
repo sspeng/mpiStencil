@@ -182,6 +182,7 @@ int main(int argc, char *argv[]) {
 
         printf("curImage[%d][%d] = %f",i,j,curImage[i][j]);
         printf("curImage[4][42] = %f",curImage[4][42]);
+        printf("curImage[17][91] = %f",curImage[17][91]);
         printImage[i-1][j-1] = curImage[i][j];
 
 
