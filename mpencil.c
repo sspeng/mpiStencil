@@ -16,7 +16,7 @@
 //but otherwise has to be in main??
 #define NROWS 1024
 #define NCOLS 1024
-#define NITERS 200
+#define NITERS 100
 #define MASTER 0
 
 void init_image(const int nx, const int ny, double *  image);
@@ -117,11 +117,36 @@ int main(int argc, char *argv[]) {
     }
   }
   //printf("Rank %d has just initialised the local grid with image pixels\n",rank);
+  //first send for initialisation
+  //send left, receive from right
+  for(int i = 0; i < lRows; i++){
+    sendbuf[i] = curImage[i][1];
+  }
+  MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
+  for(int i = 0; i < lRows; i++){
+    curImage[i][lCols+1] = recvbuf[i];
+  }
+
+  //send right, receive from left
+  for(int i = 0; i < lRows; i++){
+    sendbuf[i] = curImage[i][lCols];
+  }
+  MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
+  for(int i = 0; i < lRows; i++){
+    curImage[i][0] = recvbuf[i];
+  }
+  for(int i = 0;i < lRows; i++){
+    for(int j = 0; j < lCols + 2; j++){
+      preImage[i][j] = curImage[i][j];
+    }
+  }
 
   //begin timing
   double tic = wtime();
 
   for(int iter = 0;iter<NITERS;iter++){
+    //First iteration
+    stencil(rank,size,lRows,lCols,preImage,curImage);
     //send left, receive from right
     for(int i = 0; i < lRows; i++){
       sendbuf[i] = curImage[i][1];
@@ -139,16 +164,28 @@ int main(int argc, char *argv[]) {
     for(int i = 0; i < lRows; i++){
       curImage[i][0] = recvbuf[i];
     }
+    stencil(rank,size,lRows,lCols,curImage,preImage);
 
-    //copy old solution into preImage grid
-    for(int i = 0;i < lRows; i++){
-      for(int j = 0; j < lCols + 2; j++){
-        preImage[i][j] = curImage[i][j];
-      }
+    //send left, receive from right
+    for(int i = 0; i < lRows; i++){
+      sendbuf[i] = preImage[i][1];
+    }
+    MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
+    for(int i = 0; i < lRows; i++){
+      preImage[i][lCols+1] = recvbuf[i];
+    }
+
+    //send right, receive from left
+    for(int i = 0; i < lRows; i++){
+      sendbuf[i] = preImage[i][lCols];
+    }
+    MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
+    for(int i = 0; i < lRows; i++){
+      preImage[i][0] = recvbuf[i];
     }
 
     //run stencil here
-    stencil(rank,size,lRows,lCols,preImage,curImage);
+
   }
   //end timing
   double toc = wtime();

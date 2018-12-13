@@ -1,0 +1,23 @@
+\documentclass[10pt]{article}
+    \usepackage[utf8]{inputenc}
+    \usepackage{amsmath}
+    \usepackage[margin=0.5in]{geometry}
+    \usepackage{graphicx}
+    \usepackage{caption}
+
+    \title{Message Passing Interface and Parallelism}
+    \author{David Sharp : ds16797 : Candidate 36688}
+    \date{December 2018}
+
+    \begin{document}
+    \maketitle
+    \section{Final Implementation}
+    My final implementation that I coded with MPI for the 5-point stencil task distributes
+    columns out between processes - leaving any remainder with the highest rank process - and
+    implements a 2-D halo-exchange cyclicly using synchronous combined send/receive calls.
+    It then copies the answer from the write-too array ($curImage$) to the read-from array
+    ($preImage$) and repeats the iteration for the required 200 times. 
+
+
+
+  \end{document}
