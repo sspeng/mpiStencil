@@ -70,7 +70,6 @@ int main(int argc, char *argv[]) {
 
   // Set the input image
   init_image(NROWS, NCOLS, image);
-  printf("Rank %d has just run init_image\n",rank);
 
   //allocate space for local grid
   //two columns added for HALO
@@ -88,7 +87,7 @@ int main(int argc, char *argv[]) {
   //last rank has most columns in this format
   rCols = calcNcols(size-1,size);
   printbuf = (double*)malloc(sizeof(double) * (rCols + 2));
-  printf("Rank %d has just allocated memory for arrays\n", rank);
+  //printf("Rank %d has just allocated memory for arrays\n", rank);
 
   //initialise local grid
 
@@ -117,7 +116,7 @@ int main(int argc, char *argv[]) {
       }
     }
   }
-  printf("Rank %d has just initialised the local grid with image pixels\n",rank);
+  //printf("Rank %d has just initialised the local grid with image pixels\n",rank);
 
   //begin timing
   double tic = wtime();
@@ -153,7 +152,7 @@ int main(int argc, char *argv[]) {
   }
   //end timing
   double toc = wtime();
-  printf("Rank %d has just finished stencilling\n", rank);
+  //printf("Rank %d has just finished stencilling\n", rank);
 
   if(rank == MASTER){
     // Output
@@ -168,7 +167,7 @@ int main(int argc, char *argv[]) {
     start = 2;
     end = lCols;
     printImage = ((double*)malloc(sizeof(double)*NROWS*NCOLS));
-    printf("Rank %d has just assigned memory for printImage\n",rank);
+    //printf("Rank %d has just assigned memory for printImage\n",rank);
   }
   else if(rank == size -1){
     start = 1;
@@ -180,21 +179,21 @@ int main(int argc, char *argv[]) {
   }
   for(int i = 1; i < lRows-1; i++){
     if(rank == 0){
-      printf("Rank %d just got into assigning their own printImage segment\n",rank);
+      //printf("Rank %d just got into assigning their own printImage segment\n",rank);
       //change from j = 2; j < lCols + 1
       for(int j = 1; j < lCols; j++){
-        printf("Assigning printImage[%d][%d] from curImage[%d][%d]\n",i-1,j-1,i,j);
+        //printf("Assigning printImage[%d][%d] from curImage[%d][%d]\n",i-1,j-1,i,j);
         //breaks here
         printImage[(i-1*NROWS)+(j-1)] = curImage[i][j];
 
 
-        printf("Successful Assign of printImage");
+        //printf("Successful Assign of printImage");
       }
-      printf("Rank %d just finished their own printImage segment\n",rank);
+      //printf("Rank %d just finished their own printImage segment\n",rank);
       for(int k = 1; k < size; k++){
         rCols = calcNcols(k, size);
         MPI_Recv(printbuf, rCols + 2, MPI_DOUBLE, k, tag, MPI_COMM_WORLD, &status);
-        printf("Rank %d has just received a printbuffer\n", rank);
+        //printf("Rank %d has just received a printbuffer\n", rank);
 
         for(int j = 1;j < rCols + 1; j++){
           printImage[(i-1)*NROWS + (j-1)+leftCol(k,size)] = printbuf[j];
@@ -208,7 +207,7 @@ int main(int argc, char *argv[]) {
   if(rank==MASTER){
     output_image(OUTPUT_FILE, NROWS, NCOLS, printImage);
   }
-  printf("Rank %d has just finished totally\n", rank);
+  //printf("Rank %d has just finished totally\n", rank);
 
   MPI_Finalize();
 
