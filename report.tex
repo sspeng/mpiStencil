@@ -14,10 +14,33 @@
     \section{Final Implementation}
     My final implementation that I coded with MPI for the 5-point stencil task distributes
     columns out between processes - leaving any remainder with the highest rank process - and
-    implements a 2-D halo-exchange cyclicly using synchronous combined send/receive calls.
+    implements a 2-D halo-exchange cyclicly using blocking combined send/receive calls.
     It then copies the answer from the write-too array ($curImage$) to the read-from array
-    ($preImage$) and repeats the iteration for the required 200 times. 
+    ($preImage$) and repeats the iteration for the required 200 times in the test cases.
 
+    This is what occurs in the case that the size of image is comparatively small,
+    when the image is larger instead I ignore the answer copying and instead just do two
+    iterations effectively `in-place` similar to the serial stencil code. I think due to the
+    higher overhead of copying an array at higher sizes this strategy performs better.
+
+    \subsection{Implementation Decisions}
+    There were two implementation paths where the results surprised me, the first being that
+    I assumed that my method for distributing rows out to the processes was flawed in that the
+    last row would end up with more work than the rest of the processes and would thus slow the
+    entire program down due to synchronous communication throughout the program. I made the change
+    to make it so that since the remainder is at most one less than the number of processes in the
+    world, I could just give each process (starting with the highest ranked process and iterating downwards)
+    an additional row to manage. However, this implementation slowed down my code very slightly, on further
+    thought even if it had sped up my code it would likely not have been a significant improvement since the
+    imbalance in rows between ranks is at most one less than the number of ranks due to it being
+    $Disparity = Number of Columns (Mod Number of processes)$
+    This means that this disparity becomes less of an issue as the size of the image scales, and becomes
+    more of an issue as the number of processes scales. These two factors together mean that this change would
+    be a improvement if we were running relatively small images in 2019 on a double AMD Rome node, however
+    with 16 core nodes on Bluecrystal3, scaling with the number of processes on a single node is not a
+    useful change.
+
+    
 
 
   \end{document}

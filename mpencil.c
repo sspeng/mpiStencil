@@ -119,6 +119,8 @@ int main(int argc, char *argv[]) {
   //printf("Rank %d has just initialised the local grid with image pixels\n",rank);
   //first send for initialisation
   //send left, receive from right
+
+  //branch here depending on size
   for(int i = 0; i < lRows; i++){
     sendbuf[i] = curImage[i][1];
   }
@@ -164,6 +166,7 @@ int main(int argc, char *argv[]) {
     for(int i = 0; i < lRows; i++){
       curImage[i][0] = recvbuf[i];
     }
+    //second iteration
     stencil(rank,size,lRows,lCols,curImage,preImage);
 
     //send left, receive from right
