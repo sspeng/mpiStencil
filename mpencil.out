@@ -1,7 +1,8 @@
-Running on host node31-029
-Time is Thu Dec 13 18:30:53 GMT 2018
+Running on host node31-030
+Time is Thu Dec 13 19:15:45 GMT 2018
 Directory is /panfs/panasas01/cosc/ds16797/stencil
-PBS job ID is 7837963.master.cm.cluster
+PBS job ID is 7838358.master.cm.cluster
 ------------------------------------
- runtime: 7.933396 s
+ runtime: 4.102509 s
 ------------------------------------
+=>> PBS: job killed: walltime 305 exceeded limit 300

@@ -14,8 +14,8 @@
 // Iterations defined by niters
 //NROWS AND NCOLS ideally not hardcoded
 //but otherwise has to be in main??
-#define NROWS 1024
-#define NCOLS 1024
+#define NROWS 8000
+#define NCOLS 8000
 #define NITERS 100
 #define MASTER 0
 
