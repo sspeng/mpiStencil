@@ -1,30 +1,7 @@
-Running on host node31-030
-Time is Wed Dec 12 14:10:17 GMT 2018
+Running on host node31-032
+Time is Thu Dec 13 17:04:59 GMT 2018
 Directory is /panfs/panasas01/cosc/ds16797/stencil
-PBS job ID is 7823239.master.cm.cluster
-Rank 0 has just run init_image
-Rank 0 has just allocated memory for arrays
-Rank 0 has just initialised the local grid with image pixels
-Rank 0 has just finished stencilling
+PBS job ID is 7836856.master.cm.cluster
 ------------------------------------
- runtime: 0.541814 s
+ runtime: 0.037296 s
 ------------------------------------
-Rank 0 has just assigned memory for printImage
-Rank 0 just got into assigning their own printImage segment
-Assigning printImage[0][0] from curImage[1][1]
-
-===================================================================================
-=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
-=   PID 75528 RUNNING AT node31-030
-=   EXIT CODE: 11
-=   CLEANING UP REMAINING PROCESSES
-=   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
-===================================================================================
-
-===================================================================================
-=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
-=   PID 75528 RUNNING AT node31-030
-=   EXIT CODE: 11
-=   CLEANING UP REMAINING PROCESSES
-=   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
-===================================================================================

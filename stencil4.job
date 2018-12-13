@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -N mpencil
-#PBS -o mpencil.out
+#PBS -o mpencil4.out
 #PBS -joe
 #PBS -m a
 #PBS -qteaching
@@ -14,5 +14,5 @@ echo Time is `date`
 echo Directory is `pwd`
 echo PBS job ID is $PBS_JOBID
 
-mpirun -np 16 ./mpencil
+mpirun -np 4 ./mpencil
 
