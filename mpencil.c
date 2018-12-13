@@ -121,6 +121,7 @@ int main(int argc, char *argv[]) {
   //send left, receive from right
 
   //branch here depending on size
+
   for(int i = 0; i < lRows; i++){
     sendbuf[i] = curImage[i][1];
   }
@@ -145,10 +146,59 @@ int main(int argc, char *argv[]) {
 
   //begin timing
   double tic = wtime();
+  if(NROWS*NCOLS > 10000000){
+    for(int iter = 0;iter<NITERS;iter++){
+      //First iteration
+      stencil(rank,size,lRows,lCols,preImage,curImage);
+      //send left, receive from right
+      for(int i = 0; i < lRows; i++){
+        sendbuf[i] = curImage[i][1];
+      }
+      MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
+      for(int i = 0; i < lRows; i++){
+        curImage[i][lCols+1] = recvbuf[i];
+      }
 
-  for(int iter = 0;iter<NITERS;iter++){
+      //send right, receive from left
+      for(int i = 0; i < lRows; i++){
+        sendbuf[i] = curImage[i][lCols];
+      }
+      MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
+      for(int i = 0; i < lRows; i++){
+        curImage[i][0] = recvbuf[i];
+      }
+      //second iteration
+      stencil(rank,size,lRows,lCols,curImage,preImage);
+
+      //send left, receive from right
+      for(int i = 0; i < lRows; i++){
+        sendbuf[i] = preImage[i][1];
+      }
+      MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
+      for(int i = 0; i < lRows; i++){
+        preImage[i][lCols+1] = recvbuf[i];
+      }
+
+      //send right, receive from left
+      for(int i = 0; i < lRows; i++){
+        sendbuf[i] = preImage[i][lCols];
+      }
+      MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
+      for(int i = 0; i < lRows; i++){
+        preImage[i][0] = recvbuf[i];
+      }
+
+      //run stencil here
+
+    }
+  }
+  else{
     //First iteration
-    stencil(rank,size,lRows,lCols,preImage,curImage);
+    for(int i = 0;i < lRows; i++){
+      for(int j = 0; j < lCols + 2; j++){
+        preImage[i][j] = curImage[i][j];
+      }
+    }
     //send left, receive from right
     for(int i = 0; i < lRows; i++){
       sendbuf[i] = curImage[i][1];
@@ -166,29 +216,8 @@ int main(int argc, char *argv[]) {
     for(int i = 0; i < lRows; i++){
       curImage[i][0] = recvbuf[i];
     }
-    //second iteration
-    stencil(rank,size,lRows,lCols,curImage,preImage);
 
-    //send left, receive from right
-    for(int i = 0; i < lRows; i++){
-      sendbuf[i] = preImage[i][1];
-    }
-    MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
-    for(int i = 0; i < lRows; i++){
-      preImage[i][lCols+1] = recvbuf[i];
-    }
-
-    //send right, receive from left
-    for(int i = 0; i < lRows; i++){
-      sendbuf[i] = preImage[i][lCols];
-    }
-    MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
-    for(int i = 0; i < lRows; i++){
-      preImage[i][0] = recvbuf[i];
-    }
-
-    //run stencil here
-
+    stencil(rank,size,lRows,lCols,preImage,curImage);
   }
   //end timing
   double toc = wtime();
