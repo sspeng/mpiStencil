@@ -17,14 +17,23 @@
     implements a 2-D halo-exchange cyclicly using blocking combined send/receive calls.
     It then copies the answer from the write-too array ($curImage$) to the read-from array
     ($preImage$) and repeats the iteration for the required 200 times in the test cases.
+    It checks to see whether the inputted image size has more rows than columns and makes
+    sure it distributes over the larger by swapping the array dimensions if necessary.
 
     This is what occurs in the case that the size of image is comparatively small,
     when the image is larger instead I ignore the answer copying and instead just do two
     iterations effectively `in-place` similar to the serial stencil code. I think due to the
     higher overhead of copying an array at higher sizes this strategy performs better.
 
+    After the stencil is complete, the master rank takes charge of taking back in the answers
+    from the `student` processes. It allocates space for an array to store each of the student's
+    answers in, then places its own answers in the array and sets up to receive each student's answers
+    column by column and place them in the same array. It then feeds the array into the serial
+    image output function. This outputting process takes by far the bulk of the actual runtime of
+    the program, particularly for very large images, though not measured for this assignment.
+
     \subsection{Implementation Decisions}
-    There were two implementation paths where the results surprised me, the first being that
+    There were several implementation paths where the results surprised me, the first being that
     I assumed that my method for distributing rows out to the processes was flawed in that the
     last row would end up with more work than the rest of the processes and would thus slow the
     entire program down due to synchronous communication throughout the program. I made the change
@@ -40,7 +49,53 @@
     with 16 core nodes on Bluecrystal3, scaling with the number of processes on a single node is not a
     useful change.
 
-    
+    As for the change in strategy based on image size, I don't honestly quite understand why stencilling back
+    and forth rather than copying the array is slower for small images since it seems to just be fewer operations.
+    I imagine that there is some compiler optimisation that gets removed when the for loop is expanded to include
+    two send/receive halo exchanges. However for images of around size 3000x3000, doing the double stencil starts
+    becoming significantly quicker, at size 8000x8000 the stencil runs in nearly half the time when not copying the
+    image array.
+
+    \section{Timings}
+    \subsection{Timings with Array Copying}
+
+    \begin{center}
+        \begin{tabular}{ |c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c| }
+            \multicolumn{17}{| c |}{Stencil time\/s 3sf (Mean of Three Runs)}
+            \hline
+            Processes & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \hline
+            1024x1024 & 0.534 & 0.256 & 0.167 & 0.125 & 0.103 & 0.0852 & 0.0730 & 0.0689 & 0.0608 & 0.0527 & 0.0506 & 0.0475 & 0.0446 & 0.0418 & 0.0392 & 0.0373 \hline
+            4096x4096 & 10.6 & 5.56 & 3.77 & 2.88 & 2.69 & 2.77 & 2.37 & 2.14 & 2.29 & 2.06 & 2.25 & 2.18 & 2.25 & 2.14 & 2.25 & 2.11 \hline
+            8000x8000 & 35.5 & 17.3 & 13.1 & 9.86 & 9.89 & 10.4 & 8.93 & 7.82 & 8.59 & 7.73 & 8.45 & 7.86 & 8.45 & 7.84 & 8.38 & 7.90 \hline
+        \end{tabular}
+    \end{center}
+
+    \subsection{Timings with `in-place` Double Stencil}
+
+    \begin{center}
+        \begin{tabular}{ |c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c| }
+            \multicolumn{17}{| c |}{Stencil time\/s 3sf (Mean of Three Runs)}
+            \hline
+            Processes & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \hline
+            1024x1024 & 0.534 & 0.256 & 0.167 & 0.125 & 0.103 & 0.0852 & 0.0730 & 0.0689 & 0.0608 & 0.0527 & 0.0506 & 0.0475 & 0.0446 & 0.0418 & 0.0392 & 0.0373 \hline
+            4096x4096 & 10.6 & 5.56 & 3.77 & 2.88 & 2.69 & 2.77 & 2.37 & 2.14 & 2.29 & 2.06 & 2.25 & 2.18 & 2.25 & 2.14 & 2.25 & 2.11 \hline
+            8000x8000 & 35.5 & 17.3 & 13.1 & 9.86 & 9.89 & 10.4 & 8.93 & 7.82 & 8.59 & 7.73 & 8.45 & 7.86 & 8.45 & 7.84 & 8.38 & 7.90 \hline
+        \end{tabular}
+    \end{center}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   \end{document}
