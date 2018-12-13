@@ -294,16 +294,22 @@ int calcNcols(int rank, int size){
 
   ncols = NCOLS / size;       /* integer division */
   if ((NCOLS % size) != 0) {  /* if there is a remainder */
-    if (rank == size - 1)
-      ncols += NCOLS % size;  /* add remainder to last rank */
+    if(rank <= (NCOLS % size)){
+      if(rank > 0){
+        ncols += 1;
+      }
+    }
   }
 
   return ncols;
 }
 
 int leftCol(int rank, int size){
-  int l;
-  l = rank * (NCOLS/size);
+  int l = 0;
+  for(int i = 0; i < rank; i++){
+    l += calcNcols(i,size);
+  }
+  //l = rank * (NCOLS/size);
   return l;
 }
 
