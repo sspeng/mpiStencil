@@ -14,17 +14,15 @@
 // Iterations defined by niters
 //NROWS AND NCOLS ideally not hardcoded
 //but otherwise has to be in main??
-#define NROWS 8000
-#define NCOLS 8000
-#define NITERS 100
+
 #define MASTER 0
 
 void init_image(const int nx, const int ny, double *  image);
 void output_image(const char * file_name, const int nx, const int ny, double *image);
 void stencil(int rank, int size, int lRows, int lCols, double **preImage, double **curImage);
 double wtime(void);
-int calcNcols(int rank, int size);
-int leftCol(int rank, int size);
+int calcNcols(int rank, int size, int ny);
+int leftCol(int rank, int size, int ny);
 
 int main(int argc, char *argv[]) {
 
@@ -42,6 +40,15 @@ int main(int argc, char *argv[]) {
   double *sendbuf; //Send buffer
   double *recvbuf; //Receive buffer
   double *printbuf; //Print buffer
+
+  if (argc != 4) {
+    fprintf(stderr, "Usage: %s nx ny niters\n", argv[0]);
+    exit(EXIT_FAILURE);
+  }
+  // Initiliase problem dimensions from command line arguments
+  int nx = atoi(argv[1]);
+  int ny = atoi(argv[2]);
+  int niters = atoi(argv[3]);
 
   /*
   double buf[NROWS];
@@ -61,15 +68,21 @@ int main(int argc, char *argv[]) {
   int right = (rank + 1) % size;
 
   //determine local grid
-  lRows = NROWS;
-  lCols = calcNcols(rank,size);
+
+  if(ny < nx){
+    int a = ny;
+    ny = nx;
+    nx = a;
+  }
+  lRows = nx;
+  lCols = calcNcols(rank,size,ny);
 
   // Allocate the image
   //scale poorly since every process will do this
-  double *image = malloc(sizeof(double)*NROWS*NCOLS);
+  double *image = malloc(sizeof(double)*nx*ny);
 
   // Set the input image
-  init_image(NROWS, NCOLS, image);
+  init_image(nx, ny, image);
 
   //allocate space for local grid
   //two columns added for HALO
@@ -85,7 +98,7 @@ int main(int argc, char *argv[]) {
   recvbuf = (double*)malloc(sizeof(double) * lRows);
 
   //last rank has most columns in this format
-  rCols = calcNcols(size-1,size);
+  rCols = calcNcols(size-1,size,ny);
   printbuf = (double*)malloc(sizeof(double) * (rCols + 2));
   //printf("Rank %d has just allocated memory for arrays\n", rank);
 
@@ -112,13 +125,16 @@ int main(int argc, char *argv[]) {
       }
       else{
         //equivalent to Boundary Mean case
-        curImage[i][j] = image[i+(j+leftCol(rank,size))*NROWS];
+        curImage[i][j] = image[i+(j+leftCol(rank,size,ny))*nx];
       }
     }
   }
   //printf("Rank %d has just initialised the local grid with image pixels\n",rank);
   //first send for initialisation
   //send left, receive from right
+
+  //branch here depending on size
+
   for(int i = 0; i < lRows; i++){
     sendbuf[i] = curImage[i][1];
   }
@@ -143,49 +159,81 @@ int main(int argc, char *argv[]) {
 
   //begin timing
   double tic = wtime();
+  if(nx*ny > 10000000){
+    for(int iter = 0;iter<niters;iter++){
+      //First iteration
+      stencil(rank,size,lRows,lCols,preImage,curImage);
+      //send left, receive from right
+      for(int i = 0; i < lRows; i++){
+        sendbuf[i] = curImage[i][1];
+      }
+      MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
+      for(int i = 0; i < lRows; i++){
+        curImage[i][lCols+1] = recvbuf[i];
+      }
 
-  for(int iter = 0;iter<NITERS;iter++){
-    //First iteration
-    stencil(rank,size,lRows,lCols,preImage,curImage);
-    //send left, receive from right
-    for(int i = 0; i < lRows; i++){
-      sendbuf[i] = curImage[i][1];
-    }
-    MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
-    for(int i = 0; i < lRows; i++){
-      curImage[i][lCols+1] = recvbuf[i];
-    }
+      //send right, receive from left
+      for(int i = 0; i < lRows; i++){
+        sendbuf[i] = curImage[i][lCols];
+      }
+      MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
+      for(int i = 0; i < lRows; i++){
+        curImage[i][0] = recvbuf[i];
+      }
+      //second iteration
+      stencil(rank,size,lRows,lCols,curImage,preImage);
 
-    //send right, receive from left
-    for(int i = 0; i < lRows; i++){
-      sendbuf[i] = curImage[i][lCols];
-    }
-    MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
-    for(int i = 0; i < lRows; i++){
-      curImage[i][0] = recvbuf[i];
-    }
-    stencil(rank,size,lRows,lCols,curImage,preImage);
+      //send left, receive from right
+      for(int i = 0; i < lRows; i++){
+        sendbuf[i] = preImage[i][1];
+      }
+      MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
+      for(int i = 0; i < lRows; i++){
+        preImage[i][lCols+1] = recvbuf[i];
+      }
 
-    //send left, receive from right
-    for(int i = 0; i < lRows; i++){
-      sendbuf[i] = preImage[i][1];
-    }
-    MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
-    for(int i = 0; i < lRows; i++){
-      preImage[i][lCols+1] = recvbuf[i];
-    }
+      //send right, receive from left
+      for(int i = 0; i < lRows; i++){
+        sendbuf[i] = preImage[i][lCols];
+      }
+      MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
+      for(int i = 0; i < lRows; i++){
+        preImage[i][0] = recvbuf[i];
+      }
 
-    //send right, receive from left
-    for(int i = 0; i < lRows; i++){
-      sendbuf[i] = preImage[i][lCols];
-    }
-    MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
-    for(int i = 0; i < lRows; i++){
-      preImage[i][0] = recvbuf[i];
-    }
+      //run stencil here
 
-    //run stencil here
+    }
+  }
+  else{
+    //adjust for every iteration being 1/2
+    niters *= 2;
+    for(int iter = 0;iter<niters;iter++){
+      for(int i = 0;i < lRows; i++){
+        for(int j = 0; j < lCols + 2; j++){
+          preImage[i][j] = curImage[i][j];
+        }
+      }
+      //send left, receive from right
+      for(int i = 0; i < lRows; i++){
+        sendbuf[i] = curImage[i][1];
+      }
+      MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
+      for(int i = 0; i < lRows; i++){
+        curImage[i][lCols+1] = recvbuf[i];
+      }
 
+      //send right, receive from left
+      for(int i = 0; i < lRows; i++){
+        sendbuf[i] = curImage[i][lCols];
+      }
+      MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
+      for(int i = 0; i < lRows; i++){
+        curImage[i][0] = recvbuf[i];
+      }
+
+      stencil(rank,size,lRows,lCols,preImage,curImage);
+    }
   }
   //end timing
   double toc = wtime();
@@ -203,7 +251,7 @@ int main(int argc, char *argv[]) {
   if(rank == 0){
     start = 2;
     end = lCols;
-    printImage = ((double*)malloc(sizeof(double)*NROWS*NCOLS));
+    printImage = ((double*)malloc(sizeof(double)*nx*ny));
     //printf("Rank %d has just assigned memory for printImage\n",rank);
   }
   else if(rank == size -1){
@@ -221,19 +269,19 @@ int main(int argc, char *argv[]) {
       for(int j = 1; j < lCols; j++){
         //printf("Assigning printImage[%d][%d] from curImage[%d][%d]\n",i-1,j-1,i,j);
         //breaks here
-        printImage[(i-1*NROWS)+(j-1)] = curImage[i][j];
+        printImage[(i-1*nx)+(j-1)] = curImage[i][j];
 
 
         //printf("Successful Assign of printImage");
       }
       //printf("Rank %d just finished their own printImage segment\n",rank);
       for(int k = 1; k < size; k++){
-        rCols = calcNcols(k, size);
+        rCols = calcNcols(k, size,ny);
         MPI_Recv(printbuf, rCols + 2, MPI_DOUBLE, k, tag, MPI_COMM_WORLD, &status);
         //printf("Rank %d has just received a printbuffer\n", rank);
 
         for(int j = 1;j < rCols + 1; j++){
-          printImage[(i-1)*NROWS + (j-1)+leftCol(k,size)] = printbuf[j];
+          printImage[(i-1)*nx + (j-1)+leftCol(k,size,ny)] = printbuf[j];
         }
       }
     }
@@ -242,7 +290,7 @@ int main(int argc, char *argv[]) {
     }
   }
   if(rank==MASTER){
-    output_image(OUTPUT_FILE, NROWS, NCOLS, printImage);
+    output_image(OUTPUT_FILE, nx, ny, printImage);
   }
   //printf("Rank %d has just finished totally\n", rank);
 
@@ -326,21 +374,21 @@ double wtime(void) {
   return tv.tv_sec + tv.tv_usec*1e-6;
 }
 
-int calcNcols(int rank, int size){
+int calcNcols(int rank, int size, int ny){
   int ncols;
 
-  ncols = NCOLS / size;       /* integer division */
-  if ((NCOLS % size) != 0) {  /* if there is a remainder */
+  ncols = ny / size;       /* integer division */
+  if ((ny % size) != 0) {  /* if there is a remainder */
     if (rank == size - 1)
-      ncols += NCOLS % size;  /* add remainder to last rank */
+      ncols += ny % size;  /* add remainder to last rank */
   }
 
   return ncols;
 }
 
-int leftCol(int rank, int size){
+int leftCol(int rank, int size, int ny){
   int l;
-  l = rank * (NCOLS/size);
+  l = rank * (ny/size);
   return l;
 }
 
