@@ -190,18 +190,19 @@
     Assuming a square number of processes that divides the image dimensions, each process is managing a $\frac{x}{\sqrt{p}} \quad by \quad \frac{y}{\sqrt{p}}$ size tile.
 
     \begin{align*}
-      MP North \propto \sqrt{p}\frac{x}{\sqrt{p}} \\
-      MP North \propto x \\
-      MP South \propto x \\
-      MP West \propto \sqrt{p}\frac{y}{\sqrt{p}} \\
-      MP West \propto y \\
-      MP East \propto y \\
-      MP Cost \propto 2x+2y
+      MP North \propto p\frac{x}{\sqrt{p}} \\
+      MP North \propto \sqrt{p}x \\
+      MP South \propto \sqrt{p}x \\
+      MP West \propto p\frac{y}{\sqrt{p}} \\
+      MP West \propto \sqrt{p}y \\
+      MP East \propto \sqrt{p}y \\
+      MP Cost \propto 2x\sqrt{p}+2y\sqrt{p}
     \end{align*}
 
-    Under the tiling scheme, with sufficiently sized tiles, the amount of message passing is completely independent of the amount of processes we are using.
+    Under the tiling scheme, with sufficiently sized tiles, the amount of message passing scales with the square root of the amount of processes we are using.
     More realistically, as the number of tiles increases on an image there comes a point where all we are doing is passing messages, but the number of processes
-    can be selected for to counter this.
+    can be selected for to counter this. Also performance may end up being better than this for the other reason of not every tile
+    needing to pass messages in all four directions i.e the edge cases.
 
     This means that a tiling scheme will achieve a far closer to maximal memory bandwidth, and I suspect is the difference between my code and the benchmarks.
 
