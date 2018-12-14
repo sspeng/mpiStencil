@@ -5,7 +5,7 @@
 #PBS -m a
 #PBS -qteaching
 #PBS -lnodes=1:ppn=16
-#PBS -lwalltime=00:00:30
+#PBS -lwalltime=00:45:00
 
 cd $PBS_O_WORKDIR
 
@@ -14,5 +14,18 @@ echo Time is `date`
 echo Directory is `pwd`
 echo PBS job ID is $PBS_JOBID
 
-mpirun -np 16 ./mpencil
-
+mpirun -np 15 ./mpencil 8000 8000 100
+mpirun -np 14 ./mpencil 8000 8000 100
+mpirun -np 13 ./mpencil 8000 8000 100
+mpirun -np 12 ./mpencil 8000 8000 100
+mpirun -np 11 ./mpencil 8000 8000 100
+mpirun -np 10 ./mpencil 8000 8000 100
+mpirun -np 9 ./mpencil 8000 8000 100
+mpirun -np 8 ./mpencil 8000 8000 100
+mpirun -np 7 ./mpencil 8000 8000 100
+mpirun -np 6 ./mpencil 8000 8000 100
+mpirun -np 5 ./mpencil 8000 8000 100
+mpirun -np 4 ./mpencil 8000 8000 100
+mpirun -np 3 ./mpencil 8000 8000 100
+mpirun -np 2 ./mpencil 8000 8000 100
+mpirun -np 1 ./mpencil 8000 8000 100
