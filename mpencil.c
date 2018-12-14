@@ -17,9 +17,9 @@
 
 #define MASTER 0
 
-void init_image(const int nx, const int ny, float *  image);
-void output_image(const char * file_name, const int nx, const int ny, float *image);
-void stencil(int rank, int size, int lRows, int lCols, float **preImage, float **curImage);
+void init_image(const int nx, const int ny, double *  image);
+void output_image(const char * file_name, const int nx, const int ny, double *image);
+void stencil(int rank, int size, int lRows, int lCols, double **preImage, double **curImage);
 double wtime(void);
 int calcNcols(int rank, int size, int ny);
 int leftCol(int rank, int size, int ny);
@@ -35,11 +35,11 @@ int main(int argc, char *argv[]) {
   int lRows;
   int lCols; //local number of rows and columns
   int rCols; //remote number of columns
-  float **preImage; //local image grid at step iter -1
-  float **curImage; //local image grid at step iter
-  float *sendbuf; //Send buffer
-  float *recvbuf; //Receive buffer
-  float *printbuf; //Print buffer
+  double **preImage; //local image grid at step iter -1
+  double **curImage; //local image grid at step iter
+  double *sendbuf; //Send buffer
+  double *recvbuf; //Receive buffer
+  double *printbuf; //Print buffer
 
   if (argc != 4) {
     fprintf(stderr, "Usage: %s nx ny niters\n", argv[0]);
@@ -79,27 +79,27 @@ int main(int argc, char *argv[]) {
 
   // Allocate the image
   //scale poorly since every process will do this
-  float *image = malloc(sizeof(float)*nx*ny);
+  double *image = malloc(sizeof(double)*nx*ny);
 
   // Set the input image
   init_image(nx, ny, image);
 
   //allocate space for local grid
   //two columns added for HALO
-  preImage = (float**)malloc(sizeof(float*) * lRows);
+  preImage = (double**)malloc(sizeof(double*) * lRows);
   for(int i=0;i<lRows;i++){
-    preImage[i] = (float*)malloc(sizeof(float) * (lCols+2));
+    preImage[i] = (double*)malloc(sizeof(double) * (lCols+2));
   }
-  curImage = (float**)malloc(sizeof(float*) * lRows);
+  curImage = (double**)malloc(sizeof(double*) * lRows);
   for(int i=0;i<lRows;i++){
-    curImage[i] = (float*)malloc(sizeof(float) * (lCols+2));
+    curImage[i] = (double*)malloc(sizeof(double) * (lCols+2));
   }
-  sendbuf = (float*)malloc(sizeof(float) * lRows);
-  recvbuf = (float*)malloc(sizeof(float) * lRows);
+  sendbuf = (double*)malloc(sizeof(double) * lRows);
+  recvbuf = (double*)malloc(sizeof(double) * lRows);
 
   //last rank has most columns in this format
   rCols = calcNcols(size-1,size,ny);
-  printbuf = (float*)malloc(sizeof(float) * (rCols + 2));
+  printbuf = (double*)malloc(sizeof(double) * (rCols + 2));
   //printf("Rank %d has just allocated memory for arrays\n", rank);
 
   //initialise local grid
@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
   for(int i = 0; i < lRows; i++){
     sendbuf[i] = curImage[i][1];
   }
-  MPI_Sendrecv( sendbuf, lRows, MPI_FLOAT, left, tag, recvbuf, lRows, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+  MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
   for(int i = 0; i < lRows; i++){
     curImage[i][lCols+1] = recvbuf[i];
   }
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
   for(int i = 0; i < lRows; i++){
     sendbuf[i] = curImage[i][lCols];
   }
-  MPI_Sendrecv(sendbuf, lRows, MPI_FLOAT, right, tag, recvbuf, lRows, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
+  MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
   for(int i = 0; i < lRows; i++){
     curImage[i][0] = recvbuf[i];
   }
@@ -167,7 +167,7 @@ int main(int argc, char *argv[]) {
       for(int i = 0; i < lRows; i++){
         sendbuf[i] = curImage[i][1];
       }
-      MPI_Sendrecv( sendbuf, lRows, MPI_FLOAT, left, tag, recvbuf, lRows, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+      MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
       for(int i = 0; i < lRows; i++){
         curImage[i][lCols+1] = recvbuf[i];
       }
@@ -176,7 +176,7 @@ int main(int argc, char *argv[]) {
       for(int i = 0; i < lRows; i++){
         sendbuf[i] = curImage[i][lCols];
       }
-      MPI_Sendrecv(sendbuf, lRows, MPI_FLOAT, right, tag, recvbuf, lRows, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
+      MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
       for(int i = 0; i < lRows; i++){
         curImage[i][0] = recvbuf[i];
       }
@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
       for(int i = 0; i < lRows; i++){
         sendbuf[i] = preImage[i][1];
       }
-      MPI_Sendrecv( sendbuf, lRows, MPI_FLOAT, left, tag, recvbuf, lRows, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+      MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
       for(int i = 0; i < lRows; i++){
         preImage[i][lCols+1] = recvbuf[i];
       }
@@ -196,7 +196,7 @@ int main(int argc, char *argv[]) {
       for(int i = 0; i < lRows; i++){
         sendbuf[i] = preImage[i][lCols];
       }
-      MPI_Sendrecv(sendbuf, lRows, MPI_FLOAT, right, tag, recvbuf, lRows, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
+      MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
       for(int i = 0; i < lRows; i++){
         preImage[i][0] = recvbuf[i];
       }
@@ -218,7 +218,7 @@ int main(int argc, char *argv[]) {
       for(int i = 0; i < lRows; i++){
         sendbuf[i] = curImage[i][1];
       }
-      MPI_Sendrecv( sendbuf, lRows, MPI_FLOAT, left, tag, recvbuf, lRows, MPI_FLOAT, right, tag, MPI_COMM_WORLD, &status);
+      MPI_Sendrecv( sendbuf, lRows, MPI_DOUBLE, left, tag, recvbuf, lRows, MPI_DOUBLE, right, tag, MPI_COMM_WORLD, &status);
       for(int i = 0; i < lRows; i++){
         curImage[i][lCols+1] = recvbuf[i];
       }
@@ -227,7 +227,7 @@ int main(int argc, char *argv[]) {
       for(int i = 0; i < lRows; i++){
         sendbuf[i] = curImage[i][lCols];
       }
-      MPI_Sendrecv(sendbuf, lRows, MPI_FLOAT, right, tag, recvbuf, lRows, MPI_FLOAT, left, tag, MPI_COMM_WORLD, &status);
+      MPI_Sendrecv(sendbuf, lRows, MPI_DOUBLE, right, tag, recvbuf, lRows, MPI_DOUBLE, left, tag, MPI_COMM_WORLD, &status);
       for(int i = 0; i < lRows; i++){
         curImage[i][0] = recvbuf[i];
       }
@@ -247,11 +247,11 @@ int main(int argc, char *argv[]) {
   }
   //RANK 0 PROCESS REACHES HERE
   //Do the printing
-  float* printImage;
+  double* printImage;
   if(rank == 0){
     start = 2;
     end = lCols;
-    printImage = ((float*)malloc(sizeof(float)*nx*ny));
+    printImage = ((double*)malloc(sizeof(double)*nx*ny));
     //printf("Rank %d has just assigned memory for printImage\n",rank);
   }
   else if(rank == size -1){
@@ -277,7 +277,7 @@ int main(int argc, char *argv[]) {
       //printf("Rank %d just finished their own printImage segment\n",rank);
       for(int k = 1; k < size; k++){
         rCols = calcNcols(k, size,ny);
-        MPI_Recv(printbuf, rCols + 2, MPI_FLOAT, k, tag, MPI_COMM_WORLD, &status);
+        MPI_Recv(printbuf, rCols + 2, MPI_DOUBLE, k, tag, MPI_COMM_WORLD, &status);
         //printf("Rank %d has just received a printbuffer\n", rank);
 
         for(int j = 1;j < rCols + 1; j++){
@@ -286,7 +286,7 @@ int main(int argc, char *argv[]) {
       }
     }
     else{
-      MPI_Send(curImage[i], lCols + 2, MPI_FLOAT, MASTER, tag, MPI_COMM_WORLD);
+      MPI_Send(curImage[i], lCols + 2, MPI_DOUBLE, MASTER, tag, MPI_COMM_WORLD);
     }
   }
   if(rank==MASTER){
@@ -311,7 +311,7 @@ int main(int argc, char *argv[]) {
 }
 
 // Create the input image
-void init_image(const int nx, const int ny, float *  image) {
+void init_image(const int nx, const int ny, double *  image) {
   // Zero everything
   const int max = nx*ny;
   for (int z = 0; z < max; z++){
@@ -332,7 +332,7 @@ void init_image(const int nx, const int ny, float *  image) {
 }
 
 // Routine to output the image in Netpbm grayscale binary image format
-void output_image(const char * file_name, const int nx, const int ny, float *image) {
+void output_image(const char * file_name, const int nx, const int ny, double *image) {
 
   // Open output file
   FILE *fp = fopen(file_name, "w");
@@ -347,7 +347,7 @@ void output_image(const char * file_name, const int nx, const int ny, float *ima
   // Calculate maximum value of image
   // This is used to rescale the values
   // to a range of 0-255 for output
-  float maximum = 0.0;
+  double maximum = 0.0;
   for (int i = 0; i < nx; ++i) {
     for (int j = 0; j < ny; ++j) {
       if (image[j+ i*nx] > maximum)
@@ -392,7 +392,7 @@ int leftCol(int rank, int size, int ny){
   return l;
 }
 
-void stencil(int rank, int size, int lRows, int lCols, float **preImage, float **curImage){
+void stencil(int rank, int size, int lRows, int lCols, double **preImage, double **curImage){
   int start;
   int end;
   for(int i = 1; i < lRows-1; i++){
