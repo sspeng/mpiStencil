@@ -244,7 +244,7 @@ int main(int argc, char *argv[]) {
     printf("------------------------------------\n");
     printf(" runtime: %lf s\n", toc-tic);
     printf("------------------------------------\n");
-  }/*
+  }
   //RANK 0 PROCESS REACHES HERE
   //Do the printing
   float* printImage;
@@ -293,7 +293,7 @@ int main(int argc, char *argv[]) {
     output_image(OUTPUT_FILE, nx, ny, printImage);
   }
   //printf("Rank %d has just finished totally\n", rank);
-  */
+
   MPI_Finalize();
 
   free(image);
