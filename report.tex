@@ -65,40 +65,62 @@
     quite interestingly, it's seemingly equivalent to running the same code with one less process executing.
 
     \section{Timings}
+    \subsection{Optimised Serial Code Timings}
+    \begin{center}
+      \begin{tabular}{| c || c | c | c |} \hline
+        Compiler & 1024 image/s & 4096 image/s & 8000 image/s \\ \hline
+        gcc7.1.0 -Ofast & 0.441 & 7.58 & 30.2 \\ \hline
+        icc16 -Ofast & 0.542 & 9.38 & 35.6 \\ \hline
+      \end{tabular}
+    \end {center}
+
     \subsection{Timings with Array Copying}
 
     \begin{center}
-        \begin{tabular}{ |c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c| }
-            \multicolumn{17}{| c |}{Stencil time/s 3sf (Mean of Three Runs)}
+        \begin{tabular}{ |c||c|c|c|c|c|c|c|c| }
             \hline
-            Processes & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \hline
-            1024x1024 & 0.534 & 0.256 & 0.167 & 0.125 & 0.103 & 0.0852 & 0.0730 & 0.0689 & 0.0608 & 0.0527 & 0.0506 & 0.0475 & 0.0446 & 0.0418 & 0.0392 & 0.0373 \hline
-            4096x4096 & 10.6 & 5.56 & 3.77 & 2.88 & 2.69 & 2.77 & 2.37 & 2.14 & 2.29 & 2.06 & 2.25 & 2.18 & 2.25 & 2.14 & 2.25 & 2.11 \hline
-            8000x8000 & 35.5 & 17.3 & 13.1 & 9.86 & 9.89 & 10.4 & 8.93 & 7.82 & 8.59 & 7.73 & 8.45 & 7.86 & 8.45 & 7.84 & 8.38 & 7.90 \hline
+            \multicolumn{9}{| c |}{Stencil time/s 3sf (Mean of Three Runs)}\\
+            \hline
+            Processes & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8  \\ \hline
+            1024x1024 & 0.534 & 0.256 & 0.167 & 0.125 & 0.103 & 0.0852 & 0.0730 & 0.0689  \\ \hline
+            4096x4096 & 10.6 & 5.56 & 3.77 & 2.88 & 2.69 & 2.77 & 2.37 & 2.14  \\ \hline
+            8000x8000 & 35.5 & 17.3 & 13.1 & 9.86 & 9.89 & 10.4 & 8.93 & 7.82  \\ \hline
+            Processes & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\ \hline
+            1024x1024 & 0.0608 & 0.0527 & 0.0506 & 0.0475 & 0.0446 & 0.0418 & 0.0392 & 0.0373 \\ \hline
+            4096x4096 & 2.29 & 2.06 & 2.25 & 2.18 & 2.25 & 2.14 & 2.25 & 2.11 \\ \hline
+            8000x8000 & 8.59 & 7.73 & 8.45 & 7.86 & 8.45 & 7.84 & 8.38 & 7.90 \\ \hline
         \end{tabular}
     \end{center}
 
     \subsection{Timings with `in-place` Double Stencil}
 
     \begin{center}
-        \begin{tabular}{ |c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c| }
-            \multicolumn{17}{| c |}{Stencil time/s 3sf (Mean of Three Runs)}
+        \begin{tabular}{ |c||c|c|c|c|c|c|c|c| }
             \hline
-            Processes & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \hline
-            1024x1024 & 1.09 & 0.543 & 0.366 & 0.276 & 0.227 & 0.189 & 0.163 & 0.144 & 0.133 & 0.121 & 0.111 & 0.104 & 0.104 & 0.0919 & 0.0879 & 0.0807  \hline
-            4096x4096 & 14.3 & 7.43 & 4.73 & 3.83 & 2.94 & 2.54 & 2.17 & 2.02 & 1.76 & 1.61 & 1.49 & 1.38 & 1.36 & 1.29 & 1.27 & 1.19  \hline
-            8000x8000 & 31.8 & 20.0 & 13.0 & 12.1 & 10.9 & 7.18 & 7.10 & 6.25 & 5.16 & 4.64 & 4.64 & 4.27 & 4.45 & 4.28 & 4.36 & 4.12\hline
+            \multicolumn{9}{| c |}{Stencil time/s 3sf (Mean of Three Runs)} \\
+            \hline
+            Processes & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8  \\ \hline
+            1024x1024 & 1.09 & 0.543 & 0.366 & 0.276 & 0.227 & 0.189 & 0.163 & 0.144   \\ \hline
+            4096x4096 & 14.3 & 7.43 & 4.73 & 3.83 & 2.94 & 2.54 & 2.17 & 2.02   \\ \hline
+            8000x8000 & 31.8 & 20.0 & 13.0 & 12.1 & 10.9 & 7.18 & 7.10 & 6.25  \\ \hline
+            Processes & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\ \hline
+            1024x1024 & 0.133 & 0.121 & 0.111 & 0.104 & 0.104 & 0.0919 & 0.0879 & 0.0807 \\ \hline
+            4096x4096 & 1.76 & 1.61 & 1.49 & 1.38 & 1.36 & 1.29 & 1.27 & 1.19 \\ \hline
+            8000x8000 & 5.16 & 4.64 & 4.64 & 4.27 & 4.45 & 4.28 & 4.36 & 4.12 \\ \hline
         \end{tabular}
     \end{center}
 
     \subsection{Timings with `in-place` Double Stencil and floats}
 
     \begin{center}
-        \begin{tabular}{ |c||c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c| }
-            \multicolumn{17}{| c |}{Stencil time/s 3sf (Mean of Three Runs)}
+        \begin{tabular}{ |c||c|c|c|c|c|c|c|c| }
             \hline
-            Processes & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \hline
-            8000x8000 & 58.5 & 30.0 & 20.2 & 15.2 & 12.5 & 10.5 & 8.98 & 7.91 & 7.65 & 6.48 & 5.92 & 5.50 & 5.20 & 4.87 & 4.53 & 4.26\hline
+            \multicolumn{9}{| c |}{Stencil time/s 3sf (Mean of Three Runs)} \\
+            \hline
+            Processes & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\ \hline
+            8000x8000 & 58.5 & 30.0 & 20.2 & 15.2 & 12.5 & 10.5 & 8.98 & 7.91  \\ \hline
+            Processes & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\ \hline
+            8000x8000 & 7.65 & 6.48 & 5.92 & 5.50 & 5.20 & 4.87 & 4.53 & 4.26 \\ \hline
         \end{tabular}
     \end{center}
 
@@ -108,65 +130,79 @@
     overhead to the different strategies, looking at the timings for the 4096 image it's not until we start running six processes that
     we see any performance increase over the array copying approach. Also notably, the `in-place` method performs nearly half as well
     as array copying for the 1024 image.
+
+    Compared to the serial code, the speedup looks pretty good, for the small image and large image the MPI code nearly matches the fully serial code when running on one core, the medium image is ever problematic neither of my methods really get that close to the serial time.
+
     Once we start using enough processes to stencil on a large enough image, we start seeing very significant performance increases with the `in-place` approach,
     I was surprised to see that more or less throughout it outperformed the other approach on the 8000x8000 image, I had expected the rate-limiting
     factor of the memory bandwidth usage to mean that the 16 core performance wouldn't be twice as fast as the array copying approach like for the 4096x4096 image.
 
     \section{Code/Timing Evaluation}
     It's no great surprise that at the high end of process numbers, the code is heavily memory bandwidth bound. As can be seen from the timings
-    relative to the time for one process in that size category, while as number of processes increases initially
-    $Relative Time for n processes \approx \frac{1}{n}$ however when we get to using enough processes, this is no longer true. From my understanding
+    relative to the time for one process in that size category, while as number of processes increases  the
+    relative time for n processes $\approx \frac{1}{n}$ however when we get to using enough processes, this is no longer true. From my understanding
     this is due to - for the small image, or for small numbers of processes - being more comparatively compute bound, hence our times increasing
     proportionally with the number of processes which mainly provide more flops and less so memory bandwidth.
     This is most clear when looking at the times for the 8000x8000 image, while the first three or four process number increases offer us a significant
     performance boost when we start getting to using about eight or nine processes we have already hit near enough the time when running the code with 16 processes.
     I believe this specific eight or nine breakpoint is due to the specific architecture of Bluecrystal3, since Bluecrystal3 nodes contain two eight core sockets,
     once we start needing nine processes we are definitely using both sockets and hence at least have access to the maximum possible STREAM bandwidth.
-    Since I am still a factor of two off the benchmarks for all the images that there is more I could have done to utilise more memory bandwidth.
+    Since I am still a factor of two off the benchmarks for all the images it's clear
+    that there is more I could have done to utilise more efficiently the memory bandwidth available.
 
     \subsection{Theoretical Maximums}
     In the case that we assume our message passing has no cost associated, i.e we reduce our code to cost 10 FMAs per pixel per iteration, we can obtain the
     following table for Bluecrystal3 theoretical maximum speeds on the stencil code, using the Blackboard roofline model.
 
     \begin{center}
-        \begin{tabular}{ | c || c | c | c |}
-          \hline
-          Image Size & Giga FMAs required & 1 core timing/s & 16 core timing/s \hline
-          1024x1034 & 2.1 & 0.05 & 0.0032 \hline
-          4096x4096 & 33 & 0.79 & 0.05 \hline
-          8000x8000 & 128 & 3.08 & 0.19 \hline
+        \begin{tabular}{ | c || c | c | c |} \hline
+          Image Size & Giga FMAs required & 1 core timing/s & 16 core timing/s \\ \hline
+          1024x1034 & 2.1 & 0.05 & 0.0032 \\ \hline
+          4096x4096 & 33 & 0.79 & 0.05 \\ \hline
+          8000x8000 & 128 & 3.08 & 0.19 \\ \hline
         \end{tabular}
     \end{center}
 
     The first takeaway from the table is that message passing has a very real cost, the code is severely bandwidth bound,
     if we could manage to just ram the entire image array onto 16 cores uncaringly and suffer no errors or downsides we could reap a 10-20x speedup on my code.
+
     The second takeaway which is somewhat unfortunate for me, is that the closest I get to the theoretical maximums is on the 8000x8000 image on a single core, where
     I'm \textit{only} a factor of 10 off. This means that my code is scaling badly in terms of the cost of message passing.
 
     \subsection{Improvements}
     Consider my message passing(MP) scheme mathematically with processes p, and image dimensions x (width) and y (height).
 
-    The cost of passing messages is the cost of the left cyclic pass plus the cost of the right cyclic pass, $MP Cost = MP Left + MP Right$
+    The cost of passing messages is the cost of the left cyclic pass plus the cost of the right cyclic pass.
     Assuming the number of processes divides the width of the image, each process is managing $\frac{x}{p}$ columns and each row extends to
     the depth of the image.
-    $MP Left \propto py , MP Right \propto pxy hence MP Cost \propto 2py$
+
+    \begin{align*}
+      MP Cost = MP Left + MP Right \\
+      MP Left \propto py \\
+      MP Right \propto pxy \\
+      MP Cost \propto 2py
+    \end{align*}
 
     This means that the amount of message passing we have to do scales linearly with the number of processes and the size of the image.
 
-    If we instead consider a tiling approach we can say that $MP Cost = MP North + MP South + MP West + MP East$
-    Assuming a square number of processes that divides the image dimensions, each process is managing a $\frac{x}{\sqrt{p}} by \frac{y}{\sqrt{p}}$ size tile.
-    $$ MP North \propto \sqrt{p}\frac{x}{\sqrt{p}}
-    MP North \propto x
-    MP South \propto x
-    MP West \propto \sqrt{p}\frac{y}{\sqrt{p}}
-    MP West \propto y
-    MP East \propto y
+    If we instead consider a tiling approach we can say that,
+    $$MP Cost = MP North + MP South + MP West + MP East$$
+    Assuming a square number of processes that divides the image dimensions, each process is managing a $\frac{x}{\sqrt{p}} \quad by \quad \frac{y}{\sqrt{p}}$ size tile.
 
-    MP Cost \propto 2x+2y$$
+    \begin{align*}
+      MP North \propto \sqrt{p}\frac{x}{\sqrt{p}} \\
+      MP North \propto x \\
+      MP South \propto x \\
+      MP West \propto \sqrt{p}\frac{y}{\sqrt{p}} \\
+      MP West \propto y \\
+      MP East \propto y \\
+      MP Cost \propto 2x+2y
+    \end{align*}
 
     Under the tiling scheme, with sufficiently sized tiles, the amount of message passing is completely independent of the amount of processes we are using.
     More realistically, as the number of tiles increases on an image there comes a point where all we are doing is passing messages, but the number of processes
     can be selected for to counter this.
+
     This means that a tiling scheme will achieve a far closer to maximal memory bandwidth, and I suspect is the difference between my code and the benchmarks.
 
     Another implementation is to distribute rows to processes rather than columns, since if there are many more rows than columns each process will be very slow
@@ -175,7 +211,7 @@
 
     My original approach was to use rank zero as a command process to farm out sections of the image to workers as was the remit of the Concurrent Computing
     xCore coursework from Year 2. This ran into issues. For one it is simply inefficient since you are using one less process and not gaining all that much,
-    further the amount of message passing would be significantly higher leading to using memory bandwidth far less efficiently. 
+    further the amount of message passing would be significantly higher leading to using memory bandwidth far less efficiently.
 
 
 
